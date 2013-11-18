@@ -1,4 +1,4 @@
-package com.joffrey_bion.extractor;
+package com.joffrey_bion.extractor.pokemons;
 
 public class Pokemon {
 

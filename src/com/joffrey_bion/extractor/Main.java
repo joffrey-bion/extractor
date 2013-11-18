@@ -11,6 +11,10 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.LinkedList;
 
+import com.joffrey_bion.extractor.pokemons.PokemonExtractor;
+import com.joffrey_bion.extractor.pokemons.Pokemon;
+import com.joffrey_bion.extractor.pokemons.Pokemons;
+
 public class Main {
 
     private static final String DESKTOP_PATH = System.getProperty("user.home") + "/Desktop";
@@ -18,7 +22,7 @@ public class Main {
     private static final String PATH_SQL = DESKTOP_PATH + "/init_all_species.sql";
 
     public static void main(String[] args) {
-        Pokemons list = Extractor.extractPokemons();
+        Pokemons list = PokemonExtractor.extractPokemons();
         for (Pokemon p : list) {
             System.out.println(p);
         }

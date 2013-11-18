@@ -6,133 +6,67 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public class Extractor {
+public abstract class Extractor {
 
-    private static final String PATH_SRC_BASE = "pokemonBaseStats.htm";
-    private static final String PATH_SRC_EV_YIELD = "pokemonEV.htm";
-
-    private static final String IMG_LINK_PREFIX = "src=\"";
-    private static final String IMG_LINK_SUFFIX = "\"";
-
-    private static final String PKMN_NUM_PREFIX = "title=\"";
-    private static final String PKMN_NUM_SUFFIX = "\"><img ";
-
-    private static final String PKMN_NAME_PREFIX = "title=\"";
-    private static final String PKMN_NAME_SUFFIX = " (Pok";
-
-    private static final String SPECIAL_FORME_PREFIX = "<small>(";
-    private static final String SPECIAL_FORME_SUFFIX = ")</small>";
-
-    // end of line after these ones, no suffix needed
-    private static final String XP_PREFIX = "<td style=\"background:#FFFFFF\"> ";
-    private static final String HP_PREFIX = "<td style=\"background:#FF5959\"> ";
-    private static final String ATT_PREFIX = "<td style=\"background:#F5AC78\"> ";
-    private static final String DEF_PREFIX = "<td style=\"background:#FAE078\"> ";
-    private static final String SPA_PREFIX = "<td style=\"background:#9DB7F5\"> ";
-    private static final String SPD_PREFIX = "<td style=\"background:#A7DB8D\"> ";
-    private static final String SPE_PREFIX = "<td style=\"background:#FA92B2\"> ";
-
-    private static enum StatToGet {
-        BASE,
-        EV_YIELD
-    }
-
-    private StatToGet stat;
     private String source;
-    private BufferedReader reader;
+    protected BufferedReader reader;
+    private boolean eof;
     private String line;
+    private int lastIndexInLine;
 
-    private Extractor(String file, StatToGet stat) {
-        this.source = file;
-        this.stat = stat;
+    protected Extractor(String resourceFile) throws IOException {
+        this.source = resourceFile;
+        InputStream is = getClass().getResourceAsStream(source);
+        if (is == null) {
+            throw new FileNotFoundException("Couldn't find the file " + source);
+        }
+        reader = new BufferedReader(new InputStreamReader(is));
+        eof = false;
+        nextLine();
     }
-
-    public static Pokemons extractPokemons() {
-        Pokemons list = new Pokemons();
-        new Extractor(PATH_SRC_BASE, StatToGet.BASE).extractPokemonsStats(list);
-        new Extractor(PATH_SRC_EV_YIELD, StatToGet.EV_YIELD).extractPokemonsStats(list);
-        return list;
-    }
-
-    private void extractPokemonsStats(Pokemons list) {
+    
+    public boolean nextLine() throws IOException {
         try {
-            InputStream is = Extractor.class.getResourceAsStream(source);
-            reader = new BufferedReader(new InputStreamReader(is));
-            System.out.println("Source: " + source);
             line = reader.readLine();
-            while (line != null) {
-                Pokemon pokemon = new Pokemon();
-                pokemon.num = readNextBetween(PKMN_NUM_PREFIX, PKMN_NUM_SUFFIX);
-                if (pokemon.num == null) {
-                    break;
-                }
-                pokemon.thumbUrl = readNextBetween(IMG_LINK_PREFIX, IMG_LINK_SUFFIX);
-                line = reader.readLine();
-                pokemon.name = readNextBetween(PKMN_NAME_PREFIX, PKMN_NAME_SUFFIX);
-                pokemon.version = extractBetween(SPECIAL_FORME_PREFIX, SPECIAL_FORME_SUFFIX);
-                switch (stat) {
-                case BASE:
-                    pokemon.base_hp = readNextAfterPrefix(HP_PREFIX);
-                    pokemon.base_att = readNextAfterPrefix(ATT_PREFIX);
-                    pokemon.base_def = readNextAfterPrefix(DEF_PREFIX);
-                    pokemon.base_spa = readNextAfterPrefix(SPA_PREFIX);
-                    pokemon.base_spd = readNextAfterPrefix(SPD_PREFIX);
-                    pokemon.base_spe = readNextAfterPrefix(SPE_PREFIX);
-                    list.add(pokemon);
-                    break;
-                case EV_YIELD:
-                    pokemon.xp_yield = readNextAfterPrefix(XP_PREFIX);
-                    pokemon.ev_yield_hp = readNextAfterPrefix(HP_PREFIX);
-                    pokemon.ev_yield_att = readNextAfterPrefix(ATT_PREFIX);
-                    pokemon.ev_yield_def = readNextAfterPrefix(DEF_PREFIX);
-                    pokemon.ev_yield_spa = readNextAfterPrefix(SPA_PREFIX);
-                    pokemon.ev_yield_spd = readNextAfterPrefix(SPD_PREFIX);
-                    pokemon.ev_yield_spe = readNextAfterPrefix(SPE_PREFIX);
-                    Pokemon old = list.get(pokemon);
-                    if (old == null) {
-                        for (Pokemon p : list.getSimilar(pokemon)) {
-                            p.updateEVYieldFrom(pokemon);
-                        }
-                    } else {
-                        old.updateEVYieldFrom(pokemon);
-                    }
-                    break;
-                }
+            if (line == null) {
+                eof = true;
             }
-        } catch (FileNotFoundException e) {
-            System.err.println("File not found.");
-            e.printStackTrace();
+            lastIndexInLine = 0;
+            return !eof;
         } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
             try {
                 reader.close();
-            } catch (IOException e) {
+            } catch (IOException ignore) {
             }
+            throw e;
         }
     }
 
-    private String readNextBetween(String prefix, String suffix) throws IOException {
-        String result;
+    protected boolean isEofReached() {
+        return eof;
+    }
+    
+    protected String readNextBetween(String prefix, String suffix) throws IOException {
+        String result = null;
         while ((result = extractBetween(prefix, suffix)) == null) {
-            if ((line = reader.readLine()) == null) {
+            if (!nextLine()) {
                 break;
             }
         }
         return result;
     }
 
-    private String readNextAfterPrefix(String prefix) throws IOException {
-        String result;
+    protected String readNextAfterPrefix(String prefix) throws IOException {
+        String result = null;;
         while ((result = extractAfterPrefix(prefix)) == null) {
-            if ((line = reader.readLine()) == null) {
+            if (!nextLine()) {
                 break;
             }
         }
         return result;
     }
 
-    private String extractAfterPrefix(String prefix) {
+    protected String extractAfterPrefix(String prefix) {
         if (line == null) {
             return null;
         }
@@ -143,7 +77,7 @@ public class Extractor {
         return line.substring(i + prefix.length());
     }
 
-    private String extractBetween(String prefix, String suffix) {
+    protected String extractBetween(String prefix, String suffix) {
         line = extractAfterPrefix(prefix);
         if (line == null) {
             return null;
