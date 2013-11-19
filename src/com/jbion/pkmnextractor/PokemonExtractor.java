@@ -60,31 +60,31 @@ public class PokemonExtractor extends Extractor {
     private void extractPokemonsStats(Pokemons list) throws IOException {
         while (!isEofReached()) {
             Pokemon pokemon = new Pokemon();
-            pokemon.num = readNextBetween(PKMN_NUM_PREFIX, PKMN_NUM_SUFFIX);
+            pokemon.num = extractNextBetween(PKMN_NUM_PREFIX, PKMN_NUM_SUFFIX);
             if (pokemon.num == null) {
                 break;
             }
-            pokemon.thumbUrl = readNextBetween(IMG_LINK_PREFIX, IMG_LINK_SUFFIX);
-            pokemon.name = readNextBetween(PKMN_NAME_PREFIX, PKMN_NAME_SUFFIX);
-            pokemon.version = readNextBetween(SPECIAL_FORME_PREFIX, SPECIAL_FORME_SUFFIX, false);
+            pokemon.thumbUrl = extractNextBetween(IMG_LINK_PREFIX, IMG_LINK_SUFFIX);
+            pokemon.name = extractNextBetween(PKMN_NAME_PREFIX, PKMN_NAME_SUFFIX);
+            pokemon.version = extractNextBetween(SPECIAL_FORME_PREFIX, SPECIAL_FORME_SUFFIX, false);
             switch (stat) {
             case BASE:
-                pokemon.base_hp = readNextAfter(HP_PREFIX);
-                pokemon.base_att = readNextAfter(ATT_PREFIX);
-                pokemon.base_def = readNextAfter(DEF_PREFIX);
-                pokemon.base_spa = readNextAfter(SPA_PREFIX);
-                pokemon.base_spd = readNextAfter(SPD_PREFIX);
-                pokemon.base_spe = readNextAfter(SPE_PREFIX);
+                pokemon.base_hp = extractNextAfter(HP_PREFIX);
+                pokemon.base_att = extractNextAfter(ATT_PREFIX);
+                pokemon.base_def = extractNextAfter(DEF_PREFIX);
+                pokemon.base_spa = extractNextAfter(SPA_PREFIX);
+                pokemon.base_spd = extractNextAfter(SPD_PREFIX);
+                pokemon.base_spe = extractNextAfter(SPE_PREFIX);
                 list.add(pokemon);
                 break;
             case EV_YIELD:
-                pokemon.xp_yield = readNextAfter(XP_PREFIX);
-                pokemon.ev_yield_hp = readNextAfter(HP_PREFIX);
-                pokemon.ev_yield_att = readNextAfter(ATT_PREFIX);
-                pokemon.ev_yield_def = readNextAfter(DEF_PREFIX);
-                pokemon.ev_yield_spa = readNextAfter(SPA_PREFIX);
-                pokemon.ev_yield_spd = readNextAfter(SPD_PREFIX);
-                pokemon.ev_yield_spe = readNextAfter(SPE_PREFIX);
+                pokemon.xp_yield = extractNextAfter(XP_PREFIX);
+                pokemon.ev_yield_hp = extractNextAfter(HP_PREFIX);
+                pokemon.ev_yield_att = extractNextAfter(ATT_PREFIX);
+                pokemon.ev_yield_def = extractNextAfter(DEF_PREFIX);
+                pokemon.ev_yield_spa = extractNextAfter(SPA_PREFIX);
+                pokemon.ev_yield_spd = extractNextAfter(SPD_PREFIX);
+                pokemon.ev_yield_spe = extractNextAfter(SPE_PREFIX);
                 Pokemon old = list.get(pokemon);
                 if (old == null) {
                     for (Pokemon p : list.getSimilar(pokemon)) {
