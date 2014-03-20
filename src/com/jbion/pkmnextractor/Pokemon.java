@@ -90,4 +90,14 @@ public class Pokemon {
                 + ev_yield_hp + "," + ev_yield_att + "," + ev_yield_def + "," + ev_yield_spa + ","
                 + ev_yield_spd + "," + ev_yield_spe;
     }
+
+	@Override
+	public int hashCode() {
+		int hash = 1;
+		int prime = 31;
+		hash = hash * prime + get3DigitsNum().hashCode();
+		hash = hash * prime + name.hashCode();
+		hash = hash * prime + version.hashCode();
+		return hash;
+	}
 }
