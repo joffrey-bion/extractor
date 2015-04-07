@@ -1,0 +1,17 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'application'
+
+group = 'org.hildan.tools'
+version = '1.0'
+sourceCompatibility = '1.7'
+
+mainClassName = "org.hildan.pkmnextractor.Main"
+
+repositories {
+    maven { url  "http://dl.bintray.com/joffrey-bion/maven"  }
+}
+
+dependencies {
+    compile 'org.hildan.utils:io-utils:0.9'
+}
