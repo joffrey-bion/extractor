@@ -1,4 +1,4 @@
-package com.jbion.pkmnextractor;
+package org.hildan.pkmnextractor;
 
 import java.io.IOException;
 

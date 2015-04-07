@@ -1,4 +1,4 @@
-package com.jbion.charsextractor;
+package org.hildan.charsextractor;
 
 import java.io.IOException;
 
